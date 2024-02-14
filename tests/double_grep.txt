@@ -1,0 +1,3 @@
+ls | grep pipe | grep o
+exit
+

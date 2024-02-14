@@ -1,0 +1,3 @@
+ls | ./other_program | ls
+exit
+

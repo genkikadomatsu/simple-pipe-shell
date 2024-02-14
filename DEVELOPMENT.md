@@ -7,3 +7,9 @@ The source code is split up into three logical parts
 # Testing
 `run_tests.py` is a simple script that automates the testing of test cases which
 are included in `tests/`.
+
+`other_program` is also provided as a means to test a simple executable with
+the shell.
+
+# Compile 
+A Makefile is included.

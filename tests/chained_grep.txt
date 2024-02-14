@@ -1,0 +1,3 @@
+ls | grep o | grep o | grep o | grep o | grep o | grep o
+exit
+
