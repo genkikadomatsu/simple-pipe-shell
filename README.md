@@ -27,3 +27,5 @@ the following are not implemented.
 - input/output redirection
 - aliasing
 
+# Development
+See `DEVELOPMENT.md`.
