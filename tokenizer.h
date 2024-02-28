@@ -8,4 +8,7 @@
 #define TOKENIZER_H
 void clearCommand(char ***arr);
 char ***tokenizeCommand(char *command);
+extern const int MAX_ARGS;
+extern const int MAX_PROGRAMS;
+extern const char SEP[];
 #endif

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "tokenizer.h"
 
 const int MAX_ARGS = 1024;
 const int MAX_PROGRAMS = 1024;
