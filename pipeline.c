@@ -11,6 +11,8 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include "tokenizer.h"
+#include "pipeline.h"
 
 const int JSH_EXIT_FAILURE = 127;
 const char ERROR_MSG[] = "jsh error: ";
@@ -26,7 +28,9 @@ const char ERROR_MSG[] = "jsh error: ";
  * @param stop: The stopping index.
 */
 void rangedClose(int *descriptors, int start, int stop) {
+    
     for (int i = start; i < stop; i++) {
+        
         if (close(descriptors[i]) == -1) {
             fprintf(stderr, "%s(close) %s\n", ERROR_MSG, strerror(errno));
             exit(JSH_EXIT_FAILURE);
@@ -46,6 +50,7 @@ void rangedClose(int *descriptors, int start, int stop) {
  * @param i: The index of this process in a 0-indexed pipeline.
 */
 void pipeIthChildProcess(int *descriptors, int i, int numPipes) {
+    
     if (i > 0) {
         int read_i = (i - 1) * 2;
         rangedClose(descriptors, 0, read_i);
@@ -80,7 +85,9 @@ void pipeIthChildProcess(int *descriptors, int i, int numPipes) {
  * @param descriptorSpace: The memory address at which to write descriptors.
 */
 void nPipe(int n, int *descriptorSpace) {
+    
     for (int i = 0; i < n * 2; i = i + 2) {
+   
         if (pipe(&(descriptorSpace[i])) == -1) {
             fprintf(stderr, "%s(pipe) %s\n", ERROR_MSG, strerror(errno));
             exit(JSH_EXIT_FAILURE);
@@ -102,7 +109,6 @@ int processCount(char ***command) {
     while (command[i] != NULL) {
         i++;
     }
-
     return i;
 }
 
@@ -119,8 +125,11 @@ int processCount(char ***command) {
  * @returns 0 upon success.
 */
 int abortPipeline(int *fileDescriptors, int numDescriptors) {
+    
     for (int i = 0; i < numDescriptors; i++) {
+   
         if (fcntl(fileDescriptors[i], F_GETFD) != -1) {
+  
             if (close(fileDescriptors[i]) == -1) {
                 fprintf(stderr, "%s(close) %s\n", ERROR_MSG, strerror(errno));
                 return -1;
@@ -152,13 +161,13 @@ int pipelineStatus(int processPids[], int lastPid, int numPids) {
             fprintf(stderr,"%s(wait) %s\n", ERROR_MSG, strerror(errno));
             return JSH_EXIT_FAILURE;
         }
-
+        
         if (tempStatus != 0 && processPids[i] == lastPid)
             pipelineStatus = WEXITSTATUS(tempStatus);
     }
-    
     return pipelineStatus;
 }
+
 
 /**
  * Sets up and executes a pipeline of processes, given a 3D char array that
@@ -171,7 +180,7 @@ int pipeline(char ***command) {
 
     int numProcesses = processCount(command);
     int numPipes = numProcesses - 1;
-    int *fileDescriptors = malloc(sizeof(int) * numPipes * 2); 
+    int *fileDescriptors = malloc(sizeof(int) * numPipes * 2);
 
     if (fileDescriptors == NULL) {
         fprintf(stderr, "%smalloc failure\n", ERROR_MSG);
@@ -200,18 +209,16 @@ int pipeline(char ***command) {
             if (execvp(command[i][0], command[i]) == -1) {
                 fprintf(stderr,"%s(execvp) %s\n", ERROR_MSG, strerror(errno));
                 abortPipeline(fileDescriptors, numPipes * 2);
+                clearCommand(command);
                 exit(JSH_EXIT_FAILURE);
             }
         }
-
         processPids[i] = pid;
 
         if (i == numProcesses - 1)
             lastPid = pid;
     }
-
     rangedClose(fileDescriptors, 0, numPipes * 2);
     free(fileDescriptors);
-
     return pipelineStatus(processPids, lastPid, numProcesses);
 }
